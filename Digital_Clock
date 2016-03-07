@@ -1,0 +1,159 @@
+/* This program implements a simple digital clock */
+/* -switch #0 controls the mode */
+/* -in programming mode: switch #1 controls wehther time increment || decrement */
+/* -in normal mode: switch #1 does nothing */
+#include <stdio.h>
+#include <stdlib.h>
+#include <Windows.h>
+#include "DAQ/Hardware_Utilities.h"
+#define TRUE 1
+#define FALSE 0
+
+/* Define the input channels for the 2 switches */
+#define MODE_SWITCH 0
+#define UP_DOWN_SWITCH 1
+
+/* Define the state of the switches */
+#define SWITCH_ON 1
+#define SWITCH_OFF 0
+
+/* Define clock related constraints */
+#define ONE_SEC 1000
+#define ProgrammingDelay 150
+#define SecondsPerMinute 60
+#define MinutesPerHour 60
+#define HoursPerDay 24
+#define SecondsPerHour(SecondsPerMinute * MinutesPerHour)
+#define SecondsPerDay(HoursPerDay * SecondsPerHour)
+
+#define HoursPosition 0 
+#define MinutesPosition 2
+#define SecondsPosition 4
+
+/* Function prototypes for all functions implemented here */
+void digital_clcok(void);
+int update_seconds(int current_time, int increment);
+void display_time(int current_time);
+void write_two_digits(int value, int position);
+void write_digit(int digit, int position);
+
+int main(void)
+{
+  int config_type;
+  
+  printf( "Enter configuration type (0 or 4): ");
+  scanf( "%i", &config_type);
+  printf( "You selected %i\n", config_type);
+  
+  if( init_daq(config_type) == TRUE)
+      digital_clock();
+  else
+      printf( "ERROR: Cannot initialize sysetm\n");    
+  
+  system( "PAUSE");	
+  return 0;
+}
+
+/*----------------------------------------------------------------------------*/
+
+/* Run the simple digital clock */
+
+void digital_clcok(void);
+{
+     int value_mode_switch;
+     int value_up_down_switch;
+     
+     /* Holds the current time of the clock in seconds */
+     int seconds_clock = 0;
+     
+     /* Ensure initial value displayed */
+     display_time(seconds_clock);
+     
+     /* This is the input/output processing loop */
+     while(user_has_quit() == FALSE)
+     {
+           value_mode_switch = read_digital(MODE_SWITCH);
+           value_up_down_switch = read_digital(UP_DOWN_SWITCH);
+           
+           if(value_mode_switch == SWITCH_OFF)
+           {
+                 /* Normal operating mode */
+                 Sleep(ONE_SEC);
+                 seconds_clock = update_seconds(seconds_clock, 1);
+                 display_time(seconds_clock);
+           }
+           /* Programming mode */
+           else if(value_up_down_switch == SWITCH_ON)
+           {
+                seconds_clock = update_seconds(seconds_clock, SecondsPerMinute);
+                display_time(seconds_clock);
+                Sleep(ProgrammingDelay);
+           }
+           else
+           {
+               seconds_clock = update_seconds(seconds_clock, -1*SecondsPerMinute);
+               display_time(seconds_clock);
+               Sleep(ProgrammingDelay);
+           }
+     }
+     
+}
+
+/*----------------------------------------------------------------------------*/
+
+/* Update the clock by the given # of seconds, and return the new clock value */
+
+int update_seconds(int current_time, int increment);
+{
+    /* Increment the current time */
+    current_time += increment;
+    
+    /* Ensure time never goes below 0 || above number of seconds in day */
+    /* Force a wrap around if necessary */
+    current_time = (current_time + SecondsPerDay) % SecondsPerDay;
+    return current_time;
+}
+
+/*----------------------------------------------------------------------------*/
+
+/* Extract the hours, minutes, and seconds from given time & display on LED screen */
+
+void display_time(int current_time);
+{
+     int hours, minutes, seconds;
+     
+     /* Calculate the hours */
+     hours = (current_time / SecondsPerHour) % HoursPerDay;
+     write_two_digits(hours, HoursPosition);
+     
+     /* Calculate the minutes */
+     minutes = (current_time / SecondsPerHour) % MinutesPerHour;
+     write_two_digits(minutes, MinutesPosition);
+
+     /* Calculate the seconds */
+     seconds = current_time % SecondsPerMinute;
+     write_two_digits(seconds, SecondsPosition);
+}
+
+/*----------------------------------------------------------------------------*/
+
+/* Function writes the value, starting at position */
+/* Assumes value is # between 0 and 99 */
+
+void write_two_digits(int value, int position);
+{
+     /* Get the upper digit and lower digit */
+     write_digit(value/10, position);
+     write_digit(value%10, position+1);
+}
+
+/*----------------------------------------------------------------------------*/
+
+/* Write the given digit to the LED display at 'position' */
+
+void write_digit(int digit, int position)
+{
+     static int digits_table[10]={63, 48, 155, 185, 180, 173, 175, 56, 191, 189};
+     
+     write_display(digits_table[digit], position);
+}
