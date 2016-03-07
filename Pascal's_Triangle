@@ -1,0 +1,88 @@
+/* Program writes a certain # of rows of Pascal's Triangle to file pascal.txt */
+
+#include <stdio.h>
+#include <stdlib.h>
+#define OUTPUTFILE "pascal.txt"
+
+/* function declarations */
+int getC(int, int);
+int factorial(int);
+
+int main(void)
+{
+  /* Variable declarations */
+  	FILE* outputFile;
+  	int coefficient;
+  	int row;
+  	int position;
+  	int numRows;
+  
+  	/* Open output file for writing */
+  	outputFile = fopen(OUTPUTFILE, "w");
+  
+  	/* Check that the file is opened correctly */
+  	if(outputFile == NULL)
+  	{
+                	printf( "Error opening output file! Program terminating...\n");
+                	system( "PAUSE");
+                	exit(1);
+  	}
+  
+  	/* Prompt the user for input */
+  	printf( "Please enter the number of rows of Pascal's Triangle: ");
+  	printf( "that you want to display: ");
+  	scanf( "%i", &numRows);
+  
+  	/* For each row of the traingle, print the coefficients of Pascal's Triangle */
+  	row = 0;
+  
+  	while(row < numRows)
+  	{
+            		/* Print the coefficient at each position along the row */
+            		position = 0;
+            
+            		while(position <= row)
+            		{
+                           		coefficient = getC(row, position);
+                           		fprintf( outputFile, "%3d", coefficient);
+                           		position++;
+            		}
+            
+            		fprintf( outputFile, "\n");
+            		row++;
+  	}  
+  
+  	/* Close the output file */
+  	fclose(outputFile);
+  
+  	printf( "Pascal's Triangle written to file: %s\n", OUTPUTFILE);
+  
+  	system( "PAUSE");	
+  	return 0;
+}
+
+/*--------------------------------------------------------------------------- */
+
+/* Function to compute n!/(r!*(n-r)!)*/
+
+int getC( int n, int r)
+{
+    	int c;
+    	c = factorial(n)/(factorial(r)*factorial(n-r));
+    	return c;
+}  
+  
+/* Function to compute n! */
+
+int factorial (int n)
+{
+    	int fact = 1;
+    
+    	while(n > 1)
+    	{
+            		fact *= n;
+            		n--;
+    	}
+    
+    	return fact;
+}
