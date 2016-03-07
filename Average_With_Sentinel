@@ -1,0 +1,44 @@
+/* This program prompts the user for a sequence of positive integers + computes  */
+/* ... the average of them. Entering -1 signals the end of input data */
+
+#include <stdio.h>
+#include <stdlib.h>
+#define TRUE 1
+#define SENTINEL -1
+
+int main(void)
+{
+  	int sum = 0;
+  	int count = 0;
+  	int value;
+  	double average;
+  
+  	/* Prompt for input */
+  	printf( "Please enter your positive integers\n" );
+  	printf( "Enter %d to quit.\n", SENTINEL);
+  
+  	/* Read input + compute a running sum until user enters -1 */
+ 	while(TRUE)
+  	{
+             		scanf( "%i", &value);
+             		if(value == SENTINEL)
+                      		break;
+                      		sum += value;
+                      		count++;
+  	}
+  
+  	/* Check for the case where the user entered no data other than -1 */
+  	if(count == 0)
+  	{
+           		printf( "Error: no data!\n" );
+ 	}
+  	else
+  	{  
+           		/* Compute average and print on screen */
+           		average = (double)sum/count;
+           		printf( "Average: %f\n", average);
+  	}
+  
+  	system( "PAUSE");	
+  	return 0;
+}
