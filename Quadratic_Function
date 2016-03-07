@@ -1,0 +1,41 @@
+/* This program computes the roots of a quadratic function */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+int main(void)
+{
+    	double a;
+    	double b;
+    	double c;
+   	 double root_1;
+    	double root_2;
+    	double descriminate;
+    
+    	/* enter values of coefficients */
+    	printf( "Enter value of coefficient of x^2\n" );
+    	scanf( "%lf", &a );
+    	printf( "Enter value of coefficient of x\n" );
+    	scanf( "%lf", &b );
+    	printf( "Enter last coefficient\n" );
+    	scanf( "%lf", &c );
+    
+    	/* now compute the descriminate */
+    	descriminate = (b*b)-(4*a*c);
+    
+    	/* select if descriminate can be found or not */
+    	if (descriminate < 0 )
+   	 {
+       		printf( "No solution" );
+    	}
+    	else
+    	{
+       		root_1 = ((-b)+sqrt(descriminate))/(2*a);
+       		root_2 = ((-b)-sqrt(descriminate))/(2*a);
+       		printf ( "Root 1 = %f and Root 2 = %f \n", root_1, root_2 );
+    	}
+    
+    	system( "PAUSE" );
+    	return 0;
+}
